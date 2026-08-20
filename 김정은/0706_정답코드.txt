@@ -1,0 +1,405 @@
+[코딩 피드백 ]
+
+1. 로고 구조
+
+html
+
+<!-- 학생 코드 -->
+
+<h1 class="logo-box">DE'FINE
+
+<div class="text01">아르티아</div>
+
+<a href="#" target="_blank" title="home">
+
+</a>
+
+</h1>
+
+html
+
+<!-- 정답 코드 -->
+
+<h1 class="logo-box">
+
+<a href="#" target="_blank" title="DE'FINE 아르티아 홈">
+
+<img src="./image/logo_black.svg" alt="DE'FINE 아르티아 로고">
+
+</a>
+
+</h1>
+
+피드백:
+
+로고 영역은 텍스트로 직접 작성하는 방식이 아니라, 제공된 logo_black.svg 이미지를 img 태그로 넣어야 합니다. 현재 학생 코드는 a 태그가 비어 있어서 로고 클릭 영역도 제대로 구성되지 않았습니다.
+
+───
+
+2. 1차 메뉴 ul 클래스명
+
+html
+
+<!-- 학생 코드 -->
+
+<nav class="menu01">
+
+<ul class="menu-ul">
+
+<li class="m01-item m01-item01"><a href="#">사업안내</a></li>
+
+</ul>
+
+</nav>
+
+html
+
+<!-- 정답 코드 -->
+
+<nav class="menu01">
+
+<ul class="menu01-ul">
+
+<li class="m01-item m01-item01"><a href="#">사업안내</a></li>
+
+</ul>
+
+</nav>
+
+피드백:
+
+1차 메뉴 항목 자체는 구성되었지만, 정답 코드에서는 menu01-ul 클래스를 사용합니다. 클래스명이 달라지면 정답 CSS 선택자와 연결되지 않기 때문에, 기존 수업 코드 방식에 맞춰 클래스명을 통일하는 것이 좋습니다.
+
+───
+
+3. 2차 메뉴 구조
+
+html
+
+<!-- 학생 코드 -->
+
+<nav class="menu01">
+
+<ul class="menu-ul">
+
+<li class="m01-item m01-item01"><a href="#">사업안내</a></li>
+
+<li class="m01-item m01-item02"><a href="#">단지안내</a></li>
+
+</ul>
+
+</nav>
+
+html
+
+<!-- 정답 코드 -->
+
+<nav class="menu01">
+
+<ul class="menu01-ul">
+
+<li class="m01-item m01-item01"><a href="#">사업안내</a></li>
+
+<li class="m01-item m01-item02"><a href="#">단지안내</a></li>
+
+</ul>
+
+<div class="menu02">
+
+<div class="container">
+
+<div class="mn02-img-box">
+
+<div class="mn02-img-item">
+
+<a href="#" target="_blank" title="sub page move">
+
+<img src="./image/menu02_1.jpg" alt="백조 이미지">
+
+</a>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</nav>
+
+피드백:
+
+학생 코드는 1차 메뉴까지만 작성되어 있고, 1차 메뉴에 마우스를 올렸을 때 열려야 하는 menu02 구조가 없습니다. 이번 문제는 드롭다운 메뉴가 핵심 조건이므로, nav.menu01 안에 menu02를 포함해야 합니다.
+
+───
+
+4. 3차 메뉴 구조
+
+html
+
+<!-- 학생 코드 -->
+
+<!-- 3차 메뉴 구조 없음 -->
+
+html
+
+<!-- 정답 코드 -->
+
+<li class="m02-item m02-item01">
+
+<a href="#" target="_blank" title="Menswear">Menswear</a>
+
+<ul class="mn03-nav">
+
+<li class="m03-item m03-item01"><a href="#">Top</a></li>
+
+<li class="m03-item m03-item02"><a href="#">Bottom</a></li>
+
+</ul>
+
+</li>
+
+피드백:
+
+학생 코드에는 2차 메뉴 항목 안에 들어가야 하는 3차 메뉴 mn03-nav가 없습니다. 2차 메뉴 글자에 마우스를 올렸을 때 Top, Bottom 같은 3차 메뉴가 열려야 하므로, li.m02-item 내부에 ul.mn03-nav를 넣는 구조가 필요합니다.
+
+───
+
+5. 전화번호 구조
+
+html
+
+<!-- 학생 코드 -->
+
+<div class="number">1644.4041</div>
+
+html
+
+<!-- 정답 코드 -->
+
+<li class="user-item user-item01">
+
+<a href="tel:16444041" target="_blank" title="전화문의">1644.4041</a>
+
+</li>
+
+피드백:
+
+전화번호는 단순 텍스트가 아니라 사용자가 클릭할 수 있는 문의 요소입니다. 따라서 div보다는 a href="tel:16444041" 형태로 작성하는 것이 정답 구조에 맞습니다.
+
+───
+
+6. 견본주택 버튼 구조
+
+html
+
+<!-- 학생 코드 -->
+
+<button type="button" class="menu02-btn">견본주택 개관중</button>
+
+html
+
+<!-- 정답 코드 -->
+
+<li class="user-item user-item02">
+
+<a href="#" target="_blank" title="견본주택 개관 중">견본주택 개관 중</a>
+
+</li>
+
+피드백:
+
+화면에서는 버튼처럼 보이지만 정답 코드에서는 a 태그를 사용해 링크 요소로 구성합니다. 이번 상단바 우측 메뉴는 user-box > user-box-ul > user-item > a 구조로 통일되어야 하므로, 버튼만 따로 빼기보다 같은 리스트 구조 안에서 처리하는 것이 좋습니다.
+
+───
+
+7. menu 아이콘 SVG 구현
+
+html
+
+<!-- 학생 코드 -->
+
+<h2 class="menu-dot">
+
+<a href="#" target="_blank" title="menu-dot">
+
+<img src="./image/menu_dot.svg" alt="메뉴점">
+
+</a>
+
+</h1>
+
+html
+
+<!-- 정답 코드 -->
+
+<li class="user-item user-item03">
+
+<a href="#" target="_blank" title="전체 메뉴 열기">
+
+menu
+
+<svg class="menu-svg" viewBox="0 0 4 18" aria-hidden="true">
+
+<circle cx="2" cy="2" r="1.5"></circle>
+
+<circle cx="2" cy="9" r="1.5"></circle>
+
+<circle cx="2" cy="16" r="1.5"></circle>
+
+</svg>
+
+</a>
+
+</li>
+
+피드백:
+
+요구 조건은 오른쪽 menu 아이콘을 이미지 파일이 아니라 SVG 코드로 구현하는 것이었습니다. 학생 코드는 menu_dot.svg 이미지를 불러왔고, h2로 열고 h1으로 닫는 태그 오류도 있습니다. svg와 circle을 직접 작성하고 닫는 태그도 정확히 맞춰야 합니다.
+
+───
+
+8. normal.css button 초기화
+
+css
+
+/* 학생 코드 */
+
+button {
+
+background-color: transparent;
+
+padding: auto;
+
+border: none; outline: none;
+
+}
+
+css
+
+/* 정답 코드 */
+
+button {
+
+background-color: transparent;
+
+padding: 0;
+
+border: none; outline: none;
+
+}
+
+피드백:
+
+padding: auto;는 CSS에서 적절한 값이 아닙니다. 버튼 초기화에서는 padding: 0;으로 작성해야 하며, 같은 오류가 normal.css와 style.css에 반복되어 있으므로 한 번만 정리하는 것이 좋습니다.
+
+───
+
+9. 1차 메뉴 hover underline
+
+css
+
+/* 학생 코드 */
+
+.m01-item {
+
+display: flex;
+
+color: #000;
+
+font-size: 20px;
+
+font-weight: 700;
+
+line-height: 180%;
+
+}
+
+css
+
+/* 정답 코드 */
+
+.m01-item:hover > a {
+
+text-decoration: underline;
+
+}
+
+피드백:
+
+학생 코드는 1차 메뉴의 기본 글자 스타일은 작성했지만, 요구 조건인 “1차 상단바에 마우스 올리면 underline” 처리가 없습니다. 1차 메뉴 항목에 hover 되었을 때 a 태그에 text-decoration: underline;을 적용해야 합니다.
+
+───
+
+10. 2차·3차 hover 상태 표현
+
+css
+
+/* 학생 코드 */
+
+<!-- 2차 메뉴, 3차 메뉴 hover CSS 없음 -->
+
+css
+
+/* 정답 코드 */
+
+.menu01:hover > .menu02 {
+
+height: 400px;
+
+}
+
+.m02-item:hover>a {
+
+color: blue;
+
+text-decoration: underline;
+
+}
+
+.m02-item:hover > .mn03-nav {
+
+display: flex;
+
+}
+
+피드백:
+
+학생 코드는 1차 상단바까지만 구성되어 있어 2차 메뉴 활성화, 2차 메뉴 글자 hover 색상 변경, 3차 메뉴 표시 기능이 없습니다. 이번 문제에서 2차와 3차 메뉴 구현 정확도는 코드 응용력을 보는 핵심 부분이므로, 부모:hover > 자식 구조를 사용해 단계별로 작성해야 합니다.
+
+───
+
+11. 빈 main / footer 정리
+
+html
+
+<!-- 학생 코드 -->
+
+<main>
+
+</main>
+
+<footer></footer>
+
+html
+
+<!-- 정답 코드 -->
+
+</header>
+
+</body>
+
+</html>
+
+피드백:
+
+이번 정답 코드는 상단바 구현이 중심이므로 빈 main과 footer를 남길 필요가 없습니다. 사용하지 않는 빈 태그는 최종 검토에서 제거하는 것이 좋습니다.
+
+1차 상단바는 로고 영역, 중앙 메뉴, 전화번호, 견본주택 버튼, 오른쪽 menu 영역까지 기본 구조를 잡았기 때문에 완성으로 볼 수 있습니다. 다만 정답 코드에서는 로고를 logo_black.svg 이미지로 넣어야 하는데, 현재는 DE'FINE 텍스트와 아르티아 텍스트를 직접 작성한 형태라 시안과 차이가 있습니다.
+
+빠르게 구현하려면 1차 상단바를 처음부터 세부 스타일로 맞추기보다 logo-box / menu01 / user-box 세 영역으로 먼저 나누고, 각 영역에 display:flex, align-items:center, justify-content:space-between을 적용해서 배치부터 잡는 방식이 좋습니다. 이후 로고 이미지, 메뉴 글자 크기, 버튼 테두리, hover 효과 순서로 추가하면 코드가 덜 복잡해집니다.
+
+2차와 3차 메뉴는 이번 제출물에서 구현되지 않았습니다. 다음에 구현할 때는 정답 구조처럼 nav.menu01 안에 menu02를 넣고, 2차 메뉴 항목인 li 안에 다시 ul.mn03-nav를 넣는 방식으로 작성해야 합니다. 즉, 2차 메뉴 하나를 먼저 정확하게 만든 뒤 같은 구조를 복사해서 나머지 메뉴에 적용하면 코드 정확도를 높일 수 있습니다.
+
+오른쪽 menu 아이콘은 이미지 파일로 불러온 점 3개 아이콘이 아니라, 조건에 맞게 svg와 circle 태그로 직접 작성해야 합니다. 전화번호도 단순 div가 아니라 a href="tel:16444041" 형태로 작성하면 사용자 조작 요소로 더 정확하게 처리됩니다.

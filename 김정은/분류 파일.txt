@@ -1,0 +1,1095 @@
+---
+project: YOVIA
+purpose: classify_completed_reference_research
+input_research_file: research/REFERENCE_RESEARCH.txt
+input_progress_file: research/progress.txt
+input_unresolved_file: research/unresolved-sites.txt
+output_classification_file: classification/REFERENCE_CLASSIFICATION.md
+output_validation_file: classification/validation-report.txt
+output_duplicate_file: classification/DUPLICATE_GROUPS.md
+output_progress_file: classification/progress.txt
+classification_enabled: true
+duplicate_detection_enabled: true
+duplicate_scoring_policy: representative_only
+web_access_allowed: false
+research_file_mutation_allowed: false
+classification_scope: current_completed_research
+supported_source_count: pilot_20_or_full_200
+score_total: 100
+output_language: ko-KR
+revision: duplicate_site_classification_added
+created_at: 2026-07-30
+---
+
+# [YOVIA] Reference Classification & Validation Config
+
+## 0. 이 파일의 역할
+
+이 문서는 완료된 YOVIA 레퍼런스 리서치 결과를 읽어 다음 작업을 수행하는 별도 분류 지시서다.
+
+1. 중복 사이트 탐지와 중복 그룹 생성
+2. 중복 그룹별 대표 사이트 선정
+3. `핵심 필요`
+4. `부분 참고`
+5. `불필요`
+6. 디자인 적합도 평가
+7. UX 적합도 평가
+8. 총점과 우선순위 산정
+9. 최종 추천 사이트 선정
+10. 분류 결과 검수
+
+이 파일은 **외부 웹사이트를 다시 조사하지 않는다.** 반드시 `research/REFERENCE_RESEARCH.txt`에 이미 기록된 내용과 P번호 근거만 사용한다.
+
+다음 행위는 금지한다.
+
+- 외부 웹 검색 또는 사이트 재열람
+- 리서치 원본 파일 수정
+- 확인되지 않은 사실 추정
+- 점수를 맞추기 위한 임의 보정
+- 단순 취향만으로 분류 변경
+- 원본 레이아웃·카피·그래픽의 직접 복제 권장
+
+---
+
+## 1. 실행 준비와 명령어
+
+### 1.1 파일 읽기와 대기
+
+작업 폴더를 CLI 에이전트의 활성 워크스페이스로 연 뒤 아래 문장을 입력한다.
+
+```text
+@YOVIA_REFERENCE_CLASSIFICATION_CONFIG_V2.md를 처음부터 끝까지 읽고, research/REFERENCE_RESEARCH.txt와 research/progress.txt의 존재 여부 및 완료 상태만 확인하라. 아직 분류를 시작하지 말고, 입력 수량·평가 기준·출력 경로·검수 규칙만 점검한 뒤 "분류 실행 대기 중"이라고 답하라.
+```
+
+### 1.2 작업 제어 명령어
+
+에이전트가 `분류 실행 대기 중`이라고 답한 뒤 다음 다섯 개 명령어만 작업 제어 명령으로 사용한다.
+
+```text
+실행
+일시정지
+재개
+중단
+결과 검수
+```
+
+### 1.3 명령어 해석
+
+#### `실행`
+
+- 현재 상태가 `waiting`일 때 분류를 시작한다.
+- 입력 리서치 파일의 전체 항목 수를 자동 계산한다.
+- Pilot 결과가 20개면 20개만, Full 결과가 200개면 200개 전체를 처리한다.
+- 이미 분류된 ID는 덮어쓰지 않고 미완료 ID부터 처리한다.
+
+#### `일시정지`
+
+- 새 사이트 분류를 시작하지 않는다.
+- 현재 처리 중인 ID의 점수 근거와 임시 결과를 저장한다.
+- `classification/progress.txt`에 `RUN_STATE: paused`를 기록한다.
+
+#### `재개`
+
+- `RUN_STATE: paused`일 때만 허용한다.
+- 기존 결과와 진행 상태를 읽고 미완료 ID부터 이어서 처리한다.
+- 완료된 ID의 점수와 분류를 임의로 재계산하지 않는다.
+
+#### `중단`
+
+- 신규 분류와 점수 계산을 즉시 중단한다.
+- 현재까지의 결과를 저장하고 `RUN_STATE: stopped`를 기록한다.
+- 다시 시작하려면 사용자가 파일과 결과를 검토한 뒤 `실행`을 입력한다.
+
+#### `결과 검수`
+
+- 외부 웹에 접근하지 않는다.
+- `classification/REFERENCE_CLASSIFICATION.md`와 `classification/DUPLICATE_GROUPS.md`를 대상으로 수량, 중복 그룹, 대표 사이트, 점수 합계, 분류 기준, 우선순위, 근거 연결, 최종 추천 목록을 검사한다.
+- 결과를 `classification/validation-report.txt`에 저장한다.
+- 검수 과정에서 점수나 분류를 자동 수정하지 않는다.
+
+---
+
+## 2. 입력 파일과 처리 범위
+
+### 2.1 필수 입력
+
+```text
+research/REFERENCE_RESEARCH.txt
+research/progress.txt
+```
+
+### 2.2 선택 입력
+
+```text
+research/unresolved-sites.txt
+```
+
+### 2.3 처리 수량
+
+- 입력 수량을 파일에서 자동 계산한다.
+- Pilot 분류: 현재 완료된 20개 리서치 항목
+- Full 분류: 누적 완료된 200개 리서치 항목
+- 분류 대상 수량을 임의로 20개 또는 200개로 가정하지 않는다.
+- 실제 입력 항목 수와 `progress.txt`의 수량이 다르면 분류를 시작하지 않고 검수 오류로 기록한다.
+
+### 2.4 읽기 전용 원칙
+
+- `research/` 폴더의 파일은 읽기 전용으로 취급한다.
+- 분류 결과는 `classification/REFERENCE_CLASSIFICATION.md`, 중복 그룹 결과는 `classification/DUPLICATE_GROUPS.md`에 새로 저장한다.
+- 리서치 원본의 문구, URL, P번호, 상태값을 수정하지 않는다.
+
+---
+
+## 3. 분류 전 입력 검수
+
+분류 시작 전에 각 사이트 항목을 아래 기준으로 검사한다.
+
+### 3.1 필수 항목
+
+- 수집 ID
+- 브랜드명
+- 발견 URL 또는 최종 URL
+- URL 상태
+- 조사 상태
+- 확인 페이지 P1 이상
+- 주요 관찰 항목
+- 관찰 근거 P번호
+
+### 3.2 입력 검수 상태
+
+각 사이트에 다음 중 하나를 부여한다.
+
+```text
+validation_pass
+validation_partial
+validation_duplicate
+validation_hold
+```
+
+#### `validation_pass`
+
+- 조사 상태가 `completed`
+- 최소 P1, P2, P3 확인
+- 주요 관찰에 근거 P번호가 연결됨
+- 점수 계산에 필요한 정보가 충분함
+
+#### `validation_partial`
+
+- 조사 상태가 `partial`
+- 일부 관찰이 `not_verified`
+- 최소 2개 페이지와 핵심 관찰 근거가 존재함
+- 제한된 범위에서 점수 계산 가능
+
+#### `validation_duplicate`
+
+- 다른 항목과 동일한 공식 사이트 또는 실질적으로 동일한 지역·언어 변형으로 확정됨
+- 해당 항목이 중복 그룹의 대표 사이트가 아닌 `duplicate_secondary`임
+- 세부 점수와 YOVIA 적합도 분류를 새로 계산하지 않음
+- `최종 분류: 중복 제외`, `우선순위: DUPLICATE`로 기록함
+- 반드시 `중복 그룹 ID`, `대표 사이트 ID`, `중복 유형`, `중복 판정 근거`를 기록함
+
+#### `validation_hold`
+
+다음 중 하나에 해당하면 점수와 최종 분류를 부여하지 않는다.
+
+- 조사 상태가 `failed`
+- URL 상태가 `dead`, `blocked`, `unverified`이며 관찰 자료가 부족함
+- 중복 가능성은 있으나 대표·중복 관계를 확정할 근거가 부족함
+- 확인 페이지가 1개 이하
+- 주요 관찰에 P번호 근거가 없음
+- 동일 ID가 중복됨
+- 사이트 항목이 심하게 누락됨
+
+`validation_hold`는 `불필요` 분류가 아니다. 근거 부족으로 판정을 보류한 검수 상태다.
+
+---
+
+## 4. 중복 사이트 판정 및 분류
+
+중복 판정은 점수 계산보다 먼저 수행한다. 외부 웹을 다시 열지 않고, 리서치 파일에 기록된 브랜드명, 발견 URL, 최종 URL, URL 상태, 확인 페이지, 관찰 내용만 사용한다.
+
+### 4.1 중복 상태값
+
+각 사이트에 다음 중 하나를 부여한다.
+
+```text
+unique
+duplicate_primary
+duplicate_secondary
+duplicate_candidate
+related_not_duplicate
+```
+
+#### `unique`
+
+- 다른 입력과 브랜드·공식 도메인·콘텐츠가 중복되지 않는 독립 사이트
+- 일반 검수와 점수 계산을 진행함
+
+#### `duplicate_primary`
+
+- 하나의 중복 그룹에서 대표로 유지되는 사이트
+- 일반 검수와 A~E 점수 계산을 진행함
+- 최종 추천 후보가 될 수 있음
+
+#### `duplicate_secondary`
+
+- 대표 사이트와 동일하거나 실질적으로 같은 사이트로 확정된 중복 항목
+- `validation_duplicate`를 부여함
+- 별도 점수, P1~P5 우선순위, 최종 추천 자격을 부여하지 않음
+- `최종 분류: 중복 제외`, `우선순위: DUPLICATE`로 기록함
+
+#### `duplicate_candidate`
+
+- 중복 가능성이 있으나 리서치 자료만으로 확정할 수 없는 항목
+- `validation_hold`, `최종 분류: 미분류`, `우선순위: HOLD`로 기록함
+- 추정만으로 대표 사이트나 중복 제외 사이트를 정하지 않음
+
+#### `related_not_duplicate`
+
+- 같은 기업, 유사한 브랜드명, 같은 제품군 또는 비슷한 템플릿을 사용하지만 독립적인 브랜드·사이트 경험으로 판단되는 항목
+- 중복으로 제외하지 않고 일반 점수 계산을 진행함
+
+### 4.2 중복 유형
+
+중복으로 판정할 때 다음 유형 중 하나를 기록한다.
+
+```text
+exact_url_duplicate
+canonical_domain_duplicate
+same_brand_page_duplicate
+same_brand_region_duplicate
+same_brand_language_duplicate
+redirect_duplicate
+possible_duplicate
+not_duplicate
+```
+
+- `exact_url_duplicate`: 정규화한 최종 URL이 동일함
+- `canonical_domain_duplicate`: 경로나 추적값은 다르지만 동일한 공식 대표 도메인임
+- `same_brand_page_duplicate`: 동일 브랜드의 홈·제품 상세 URL이 별도 사이트처럼 중복 수집됨
+- `same_brand_region_duplicate`: 동일 브랜드의 국가별 사이트이며 구조·콘텐츠·역할이 실질적으로 같음
+- `same_brand_language_duplicate`: 언어만 다르고 사이트 구조와 핵심 콘텐츠가 동일함
+- `redirect_duplicate`: 서로 다른 발견 URL이 같은 최종 공식 URL로 리디렉션됨
+- `possible_duplicate`: 중복 가능성만 확인되어 확정할 수 없음
+- `not_duplicate`: 검토 결과 독립 사이트로 확인됨
+
+### 4.3 URL 정규화 규칙
+
+중복 비교용 URL은 다음 순서로 정규화한다.
+
+1. `최종 URL`이 있으면 발견 URL보다 우선함
+2. 프로토콜(`http`, `https`) 차이를 제거함
+3. `www.` 차이를 제거함
+4. 호스트명을 소문자로 변환함
+5. 끝 슬래시, 프래그먼트, 추적용 쿼리 파라미터를 제거함
+6. 홈 URL과 동일 사이트의 대표 제품 URL은 브랜드명과 페이지 역할을 함께 비교함
+7. URL 문자열만 같다는 이유로 서로 다른 브랜드를 하나로 합치지 않음
+
+### 4.4 중복 확정 조건
+
+다음 중 하나가 리서치 근거로 확인되면 중복 그룹을 만들 수 있다.
+
+- 정규화한 최종 URL이 동일함
+- 서로 다른 입력 URL이 같은 공식 최종 URL로 이동함
+- 브랜드명과 공식 대표 도메인이 같고 하나는 홈, 하나는 하위 제품 페이지임
+- 동일 브랜드의 국가·언어 변형이며 IA, 핵심 콘텐츠, 제품 역할이 실질적으로 같음
+- 리서치 관찰 내용이 동일하고 독립 브랜드로 볼 근거가 없음
+
+다음은 중복으로 처리하지 않는다.
+
+- 같은 모기업이지만 브랜드명이 다름
+- 같은 카테고리나 제품 유형임
+- 디자인 템플릿 또는 기능이 유사함
+- 동일 브랜드의 지역 사이트라도 제품군, IA, 콘텐츠, 사용자 흐름이 실질적으로 다름
+- 브랜드명은 비슷하지만 공식 도메인과 운영 주체가 다름
+
+### 4.5 대표 사이트 선정 규칙
+
+중복 그룹마다 정확히 하나의 `duplicate_primary`를 선정한다. 아래 순서를 기계적으로 적용한다.
+
+1. `validation_pass` 우선
+2. 조사 상태 `completed` 우선
+3. URL 상태 `active` 또는 `redirected` 우선
+4. 확인 페이지 수와 P번호 근거가 더 많은 항목 우선
+5. 브랜드의 공식 루트 또는 대표 도메인 우선
+6. 모바일·제품 목록·제품 상세 관찰이 더 완전한 항목 우선
+7. 모든 조건이 같으면 수집 ID가 작은 항목 우선
+
+대표 사이트 선정 이유를 최소 2개 기록한다. 대표가 아닌 항목은 모두 `duplicate_secondary`로 처리한다.
+
+### 4.6 중복 그룹 형식
+
+중복 그룹 ID는 `DUP-001`, `DUP-002` 형식으로 부여한다.
+
+```markdown
+## DUP-001
+
+- 대표 사이트: 001 브랜드명
+- 대표 URL:
+- 대표 선정 이유:
+- 중복 유형:
+- 포함 ID: 001, 014, 019
+- 중복 제외 ID: 014, 019
+- 판정 근거:
+- 확정 수준: confirmed / candidate
+```
+
+상세 중복 그룹은 `classification/DUPLICATE_GROUPS.md`에 저장하고, 메인 분류 결과에도 각 사이트의 중복 상태와 대표 ID를 기록한다.
+
+---
+
+## 5. 분류 카테고리
+
+YOVIA 적합도 최종 분류는 아래 세 가지다. 이 세 분류는 `unique`, `duplicate_primary`, `related_not_duplicate` 중 점수 계산이 가능한 항목에만 적용한다. `duplicate_secondary`는 별도 상태인 `중복 제외`, `duplicate_candidate`는 `미분류`로 처리한다.
+
+```text
+핵심 필요
+부분 참고
+불필요
+```
+
+### 5.1 핵심 필요
+
+YOVIA 웹사이트의 전체 방향 또는 주요 화면 설계에 직접적인 기준으로 사용할 가치가 높은 사이트다.
+
+필수 조건:
+
+- 총점 75점 이상
+- YOVIA 제품·타깃 적합도 12점 이상
+- 디자인 적합도 15점 이상
+- UX 적합도 15점 이상
+- 근거 품질 5점 이상
+- `validation_pass` 또는 충분한 `validation_partial`
+
+다음 중 두 가지 이상이 구체적으로 확인되어야 한다.
+
+- 식품·요거트·휴대형 제품과 직접 연결되는 제품 표현
+- YOVIA의 올인원 패키지 또는 사용 과정 설명에 적용 가능한 구조
+- 바쁜 20~30대 사용 맥락과 연결되는 메시지 구성
+- 메인 페이지, 제품 목록, 상세 페이지에 적용 가능한 명확한 UX
+- 모바일에서 활용 가능한 콘텐츠 흐름
+- 패키지·질감·토핑을 중심으로 한 시각적 제품 연출
+
+### 5.2 부분 참고
+
+사이트 전체가 YOVIA에 직접 맞지는 않지만 특정 요소를 선별해 참고할 가치가 있는 사이트다.
+
+다음 중 하나에 해당한다.
+
+- 총점 50~74점
+- 총점이 50점 미만이어도 디자인 적합도 20점 이상
+- 총점이 50점 미만이어도 UX 적합도 20점 이상
+- 총점이 50점 미만이어도 제품·타깃 적합도 16점 이상
+- 특정 화면, 콘텐츠 표현, 인터랙션, 패키지 연출 중 하나가 뚜렷함
+
+부분 참고로 분류할 때는 반드시 참고 범위를 제한해서 기록한다.
+
+예:
+
+```text
+히어로 비주얼만 참고
+모바일 상품 상세 흐름만 참고
+사용 방법 설명 섹션만 참고
+맛별 컬러 구분 방식만 참고
+```
+
+### 5.3 불필요
+
+검수 가능한 자료는 있으나 YOVIA 웹사이트 기획에 직접 적용할 요소가 매우 적은 사이트다.
+
+조건:
+
+- 총점 50점 미만
+- 디자인 적합도 20점 미만
+- UX 적합도 20점 미만
+- 제품·타깃 적합도 16점 미만
+- 고유하게 참고할 단일 요소도 명확하지 않음
+
+다음 이유만으로 불필요 판정을 내려서는 안 된다.
+
+- 개인 취향에 맞지 않음
+- 색상이 YOVIA와 다름
+- 해외 사이트임
+- 제품군이 완전히 동일하지 않음
+- 구현 난도가 높음
+
+---
+
+## 6. 100점 평가 기준
+
+총점은 100점이다.
+
+```text
+A. YOVIA 제품·타깃 적합도: 20점
+B. 디자인 적합도: 25점
+C. UX 적합도: 25점
+D. 적용 가능성: 20점
+E. 근거 품질: 10점
+합계: 100점
+```
+
+각 세부 항목은 0~5점으로 평가한다.
+
+### 6.1 공통 0~5점 기준
+
+```text
+0점: 확인 불가 또는 관련성 없음
+1점: 매우 약한 관련성
+2점: 제한적 관련성
+3점: 일부 적용 가능
+4점: 높은 적용 가능성
+5점: 직접적인 기준으로 활용 가능
+```
+
+점수에는 반드시 리서치 파일의 P번호 근거를 연결한다.
+
+---
+
+## 7. A. YOVIA 제품·타깃 적합도 — 20점
+
+### A1. 제품 카테고리 연관성 — 5점
+
+- 그릭요거트, 스키르, 유제품, 간편식, 파우치 식품과의 관련성
+- 제품 자체를 웹에서 어떻게 보여주는지
+
+### A2. 휴대·올인원 사용 경험 연관성 — 5점
+
+- 이동 중 취식
+- 간편 개봉
+- 토핑 결합
+- 도구 포함
+- 사용 단계 설명
+
+### A3. 핵심 타깃 연관성 — 5점
+
+- 시간 부족을 겪는 20~30대
+- 직장인·대학생
+- 출근·등교·사무실·수업 사이 상황
+
+### A4. 건강과 편의의 균형 — 5점
+
+- 건강 메시지를 과장하지 않으면서 편의성을 함께 전달하는지
+- 성분 정보와 제품 경험을 균형 있게 구성하는지
+
+---
+
+## 8. B. 디자인 적합도 — 25점
+
+### B1. 전체 비주얼 톤 — 5점
+
+- 밝고 현대적이며 젊은 인상
+- 건강성과 편의성이 함께 보이는지
+- YOVIA 컬러와 직접 동일하지 않아도 구조적으로 적용 가능한지
+
+### B2. 제품·패키지 중심성 — 5점
+
+- 제품 패키지가 핵심 시각 자산으로 사용되는지
+- 제품이 배경 장식이 아니라 정보 전달의 중심인지
+
+### B3. 식감·토핑·사용 장면 표현 — 5점
+
+- 요거트 질감, 토핑, 개봉, 섭취 과정을 시각적으로 명확히 보여주는지
+
+### B4. 타이포그래피와 정보 위계 — 5점
+
+- 제목, 설명, 수치, CTA가 명확히 구분되는지
+- 모바일에서도 읽기 쉬운 위계인지
+
+### B5. 컬러·그래픽 시스템 — 5점
+
+- 맛·제품군 구분
+- 아이콘·일러스트·도형 활용
+- 브랜드 전체에서 일관된 시각 체계를 유지하는지
+
+---
+
+## 9. C. UX 적합도 — 25점
+
+### C1. 글로벌 내비게이션과 IA — 5점
+
+- 제품, 브랜드, 사용법, 구매·문의 등 핵심 메뉴가 명확한지
+- 메뉴 구조가 복잡하지 않은지
+
+### C2. 메인 페이지 스토리 흐름 — 5점
+
+- 핵심 메시지 → 제품 → 차별점 → 사용 방법 → CTA 순서가 이해되는지
+- 사용자가 브랜드와 제품을 빠르게 파악할 수 있는지
+
+### C3. 제품 목록·상세 구조 — 5점
+
+- 제품 탐색과 비교가 쉬운지
+- 상세 페이지가 제품 특징, 사용법, 옵션, CTA를 명확하게 제공하는지
+
+### C4. 모바일·반응형 흐름 — 5점
+
+- 모바일 메뉴
+- 세로 콘텐츠 순서
+- 데스크톱 기능의 모바일 대체 방식
+- 터치 조작 적합성
+
+### C5. CTA와 행동 경로 — 5점
+
+- CTA 목적이 명확한지
+- 제품 보기, 자세히 보기, 구매처 확인 등의 다음 행동이 자연스러운지
+- 불필요한 단계가 적은지
+
+---
+
+## 10. D. 적용 가능성 — 20점
+
+### D1. 구조 재사용성 — 5점
+
+- YOVIA 메인, 제품 목록, 상세 페이지에 재구성 가능한 패턴인지
+
+### D2. 브랜드 변환 가능성 — 5점
+
+- 원본을 복제하지 않고 YOVIA의 컬러, 패키지, 카피로 변환 가능한지
+
+### D3. 구현 현실성 — 5점
+
+- 현재 프로젝트의 기술 수준과 일정에서 구현 가능한지
+- 고난도 기능은 단순화 대안이 있는지
+
+### D4. 확장성 — 5점
+
+- 향후 맛·제품군·캠페인·브랜드 콘텐츠가 늘어나도 유지 가능한 구조인지
+
+구현 난도가 높다는 이유만으로 0점을 주지 않는다. 단순화 가능한 경우에는 적용 가능성을 별도로 평가한다.
+
+---
+
+## 11. E. 근거 품질 — 10점
+
+### E1. 확인 페이지 충실도 — 4점
+
+```text
+0점: 확인 페이지 없음
+1점: 1페이지
+2점: 2페이지
+3점: 3페이지
+4점: 4~5페이지
+```
+
+### E2. P번호 근거 연결 — 3점
+
+```text
+0점: 근거 없음
+1점: 일부 관찰만 연결
+2점: 주요 관찰 대부분 연결
+3점: 모든 핵심 판단에 연결
+```
+
+### E3. 조사 완성도 — 3점
+
+```text
+0점: failed
+1점: partial이며 누락이 많음
+2점: partial이지만 핵심 판단 가능
+3점: completed
+```
+
+---
+
+## 12. 점수 계산 규칙
+
+```text
+총점 = A + B + C + D + E
+```
+
+- 총점은 정수로 기록한다.
+- 세부 점수 합계와 총점이 반드시 일치해야 한다.
+- `not_verified`는 확인된 것으로 간주하지 않는다.
+- 같은 관찰을 여러 항목에서 반복 근거로 쓸 수는 있지만, 서로 다른 능력처럼 과대평가하지 않는다.
+- 브랜드 인지도, 매출, 유명세는 점수에 포함하지 않는다.
+- 단순히 예쁘다는 이유만으로 디자인 점수를 높이지 않는다.
+- 기능이 많다는 이유만으로 UX 점수를 높이지 않는다.
+
+---
+
+## 13. 우선순위 기준
+
+각 사이트에 다음 우선순위를 부여한다.
+
+```text
+P1
+P2
+P3
+P4
+P5
+DUPLICATE
+HOLD
+```
+
+### P1
+
+- `핵심 필요`
+- 총점 85점 이상
+- 디자인·UX·제품 적합도가 균형 있게 높음
+- 최종 추천 후보
+
+### P2
+
+- `핵심 필요`
+- 총점 75~84점
+- 한두 항목은 보완이 필요하지만 주요 기준으로 활용 가능
+
+### P3
+
+- `부분 참고`
+- 총점 60~74점
+- 또는 디자인·UX·제품 적합도 중 하나가 매우 높음
+
+### P4
+
+- `부분 참고`
+- 총점 50~59점
+- 제한된 요소만 참고 가능
+
+### P5
+
+- `불필요`
+- 총점 50점 미만
+- 직접 활용할 요소가 약함
+
+### DUPLICATE
+
+- `validation_duplicate`
+- `duplicate_secondary`
+- 대표 사이트와 중복되므로 점수·순위·최종 추천에서 제외
+
+### HOLD
+
+- `validation_hold`
+- `duplicate_candidate` 또는 근거 부족 항목
+- 점수·분류·순위에서 제외
+
+---
+
+## 14. 동점 처리 규칙
+
+총점이 같으면 아래 순서로 우선순위를 정한다.
+
+1. UX 적합도
+2. YOVIA 제품·타깃 적합도
+3. 디자인 적합도
+4. 적용 가능성
+5. 근거 품질
+6. 수집 ID 오름차순
+
+동점 처리는 임의 판단으로 바꾸지 않는다.
+
+---
+
+## 15. 최종 추천 사이트 선정
+
+### 15.1 추천 수량
+
+```text
+Pilot 20개 분류: 최대 5개
+Full 200개 분류: 최대 15개
+```
+
+### 15.2 추천 자격
+
+- P1 또는 P2
+- `validation_pass` 또는 충분한 `validation_partial`
+- 총점 75점 이상
+- 중복 상태가 `unique`, `duplicate_primary`, `related_not_duplicate` 중 하나임
+- 추천 이유가 최소 3개 이상 존재
+- 각 추천 이유에 P번호 근거가 연결됨
+
+### 15.3 역할별 추천
+
+최종 추천 목록은 가능한 경우 다음 역할을 균형 있게 포함한다.
+
+```text
+전체 디자인 기준
+메인·IA·UX 기준
+제품 상세·사용법 기준
+모바일·반응형 기준
+패키지·제품 비주얼 기준
+```
+
+한 사이트가 여러 역할을 담당할 수 있다. 단, 동일 중복 그룹에서는 `duplicate_primary` 한 개만 추천할 수 있으며 `duplicate_secondary`와 `duplicate_candidate`는 추천하지 않는다.
+
+### 15.4 추천 결과에 포함할 내용
+
+사이트마다 다음을 기록한다.
+
+- 추천 순위
+- 브랜드명과 URL
+- 총점과 우선순위
+- 추천 역할
+- YOVIA에 적용 가능한 요소 3개
+- 그대로 복제하면 안 되는 요소 또는 주의점 1~2개
+- 근거 P번호
+
+---
+
+## 16. 사이트별 고정 출력 양식
+
+`classification/REFERENCE_CLASSIFICATION.md`에는 각 사이트를 아래 형식으로 기록한다.
+
+```markdown
+## 001. 브랜드명
+
+- URL:
+- 리서치 상태: completed / partial / failed
+- 입력 검수: validation_pass / validation_partial / validation_duplicate / validation_hold
+- 중복 상태: unique / duplicate_primary / duplicate_secondary / duplicate_candidate / related_not_duplicate
+- 중복 그룹 ID: 없음 / DUP-000
+- 대표 사이트 ID: 없음 / 000
+- 중복 유형: not_duplicate / exact_url_duplicate / canonical_domain_duplicate / same_brand_page_duplicate / same_brand_region_duplicate / same_brand_language_duplicate / redirect_duplicate / possible_duplicate
+- 중복 판정 근거:
+- 최종 분류: 핵심 필요 / 부분 참고 / 불필요 / 중복 제외 / 미분류
+- 우선순위: P1 / P2 / P3 / P4 / P5 / DUPLICATE / HOLD
+- 분류 신뢰도: high / medium / low
+
+### 점수
+
+- A. YOVIA 제품·타깃 적합도: 00/20
+  - A1. 제품 카테고리 연관성: 0/5 [근거: P번호]
+  - A2. 휴대·올인원 경험: 0/5 [근거: P번호]
+  - A3. 핵심 타깃 연관성: 0/5 [근거: P번호]
+  - A4. 건강·편의 균형: 0/5 [근거: P번호]
+- B. 디자인 적합도: 00/25
+  - B1. 전체 비주얼 톤: 0/5 [근거: P번호]
+  - B2. 제품·패키지 중심성: 0/5 [근거: P번호]
+  - B3. 식감·토핑·사용 장면: 0/5 [근거: P번호]
+  - B4. 타이포그래피·정보 위계: 0/5 [근거: P번호]
+  - B5. 컬러·그래픽 시스템: 0/5 [근거: P번호]
+- C. UX 적합도: 00/25
+  - C1. 내비게이션·IA: 0/5 [근거: P번호]
+  - C2. 메인 스토리 흐름: 0/5 [근거: P번호]
+  - C3. 목록·상세 구조: 0/5 [근거: P번호]
+  - C4. 모바일·반응형: 0/5 [근거: P번호]
+  - C5. CTA·행동 경로: 0/5 [근거: P번호]
+- D. 적용 가능성: 00/20
+  - D1. 구조 재사용성: 0/5 [근거: P번호]
+  - D2. 브랜드 변환 가능성: 0/5 [근거: P번호]
+  - D3. 구현 현실성: 0/5 [근거: P번호]
+  - D4. 확장성: 0/5 [근거: P번호]
+- E. 근거 품질: 00/10
+  - E1. 확인 페이지 충실도: 0/4
+  - E2. P번호 근거 연결: 0/3
+  - E3. 조사 완성도: 0/3
+
+**총점: 000/100**
+
+### 판정 근거
+
+- 핵심 근거 1: [근거: P번호]
+- 핵심 근거 2: [근거: P번호]
+- 핵심 근거 3: [근거: P번호]
+
+### 참고 범위
+
+- 전체 참고 / 특정 요소만 참고 / 참고 요소 없음
+- 구체적 참고 요소:
+
+### 적용 시 주의
+
+- 그대로 복제하지 않아야 할 요소:
+- YOVIA에 맞게 변환할 요소:
+```
+
+`validation_duplicate`인 사이트는 세부 점수를 새로 계산하지 않고 다음처럼 기록한다.
+
+```markdown
+- 입력 검수: validation_duplicate
+- 중복 상태: duplicate_secondary
+- 중복 그룹 ID: DUP-000
+- 대표 사이트 ID: 000
+- 중복 유형:
+- 중복 판정 근거:
+- 최종 분류: 중복 제외
+- 우선순위: DUPLICATE
+- 점수: 미산정
+```
+
+`validation_hold`인 사이트는 세부 점수를 억지로 채우지 않고 다음처럼 기록한다.
+
+```markdown
+- 입력 검수: validation_hold
+- 최종 분류: 미분류
+- 우선순위: HOLD
+- 보류 사유:
+- 추가로 필요한 리서치 항목:
+```
+
+---
+
+## 17. 결과 문서 상단 요약 형식
+
+`classification/REFERENCE_CLASSIFICATION.md` 최상단에 다음 요약을 작성한다.
+
+```markdown
+# YOVIA 레퍼런스 분류 결과
+
+## 처리 현황
+
+- 입력 사이트 수:
+- 검수 통과:
+- 부분 검수:
+- 고유 사이트:
+- 중복 대표 사이트:
+- 중복 제외 사이트:
+- 중복 후보:
+- 판정 보류:
+- 핵심 필요:
+- 부분 참고:
+- 불필요:
+
+## 점수 분포
+
+- 85~100점:
+- 75~84점:
+- 60~74점:
+- 50~59점:
+- 0~49점:
+
+## 우선순위 분포
+
+- P1:
+- P2:
+- P3:
+- P4:
+- P5:
+- DUPLICATE:
+- HOLD:
+
+## 중복 분포
+
+- 중복 그룹 수:
+- duplicate_primary:
+- duplicate_secondary:
+- duplicate_candidate:
+- related_not_duplicate:
+```
+
+---
+
+## 18. 최종 추천 목록 형식
+
+전체 사이트 분류가 끝난 뒤 같은 파일 하단에 작성한다.
+
+```markdown
+# 최종 추천 사이트
+
+## 1위. 브랜드명
+
+- URL:
+- 총점:
+- 우선순위:
+- 추천 역할:
+- 적용 요소 1: [근거: P번호]
+- 적용 요소 2: [근거: P번호]
+- 적용 요소 3: [근거: P번호]
+- 주의 요소:
+
+## 역할별 추천 요약
+
+- 전체 디자인 기준:
+- 메인·IA·UX 기준:
+- 제품 상세·사용법 기준:
+- 모바일·반응형 기준:
+- 패키지·제품 비주얼 기준:
+```
+
+---
+
+## 19. 검수 규칙
+
+### 19.1 입력 검수
+
+- [ ] 입력 리서치 파일이 존재한다.
+- [ ] 중복 항목이 있으면 `classification/DUPLICATE_GROUPS.md`가 생성되었다.
+- [ ] 입력 사이트 수와 `progress.txt` 수량이 일치한다.
+- [ ] 모든 사이트 ID가 고유하다.
+- [ ] 모든 사이트에 URL과 조사 상태가 있다.
+- [ ] 모든 사이트에 중복 상태가 있다.
+- [ ] 중복 그룹마다 대표 사이트가 정확히 1개다.
+- [ ] `duplicate_secondary`에 대표 사이트 ID와 중복 근거가 있다.
+- [ ] `duplicate_candidate`가 추정만으로 중복 제외되지 않았다.
+- [ ] `validation_hold` 사유가 명확하다.
+
+### 19.2 점수 검수
+
+- [ ] 모든 세부 점수가 허용 범위 안에 있다.
+- [ ] A 합계가 20점을 초과하지 않는다.
+- [ ] B 합계가 25점을 초과하지 않는다.
+- [ ] C 합계가 25점을 초과하지 않는다.
+- [ ] D 합계가 20점을 초과하지 않는다.
+- [ ] E 합계가 10점을 초과하지 않는다.
+- [ ] 총점이 A+B+C+D+E와 일치한다.
+- [ ] 점수 근거가 P번호와 연결되어 있다.
+- [ ] `not_verified` 항목을 확인된 사실처럼 점수화하지 않았다.
+
+### 19.3 분류 검수
+
+- [ ] 핵심 필요 사이트가 필수 최소 점수를 충족한다.
+- [ ] 부분 참고 사이트에 구체적인 참고 범위가 있다.
+- [ ] 불필요 사이트가 근거 부족이 아닌 낮은 적합도로 판정되었다.
+- [ ] `validation_hold`를 불필요로 처리하지 않았다.
+- [ ] `validation_duplicate`를 불필요 또는 HOLD로 잘못 처리하지 않았다.
+- [ ] 중복 대표 사이트만 일반 점수와 분류를 받았다.
+- [ ] 총점과 분류 기준이 충돌하지 않는다.
+
+### 19.4 우선순위 검수
+
+- [ ] P1은 85점 이상 핵심 필요다.
+- [ ] P2는 75~84점 핵심 필요다.
+- [ ] P3과 P4는 부분 참고다.
+- [ ] P5는 불필요다.
+- [ ] DUPLICATE는 중복 제외다.
+- [ ] HOLD와 DUPLICATE는 순위 계산에서 제외했다.
+- [ ] 동점 처리 규칙을 적용했다.
+
+### 19.5 최종 추천 검수
+
+- [ ] Pilot은 최대 5개, Full은 최대 15개다.
+- [ ] 추천 사이트는 P1 또는 P2다.
+- [ ] 동일 중복 그룹에서 대표 사이트만 추천되었다.
+- [ ] `duplicate_secondary`와 `duplicate_candidate`가 추천 목록에 없다.
+- [ ] 역할별 참고 범위가 명확하다.
+- [ ] 추천 이유가 최소 3개다.
+- [ ] 모든 추천 이유에 P번호 근거가 있다.
+- [ ] 복제 금지 또는 변환 주의점이 포함되어 있다.
+
+### 19.6 중복 검수
+
+- [ ] URL 정규화 규칙을 일관되게 적용했다.
+- [ ] 같은 모기업 또는 같은 카테고리라는 이유만으로 중복 처리하지 않았다.
+- [ ] 중복 그룹마다 `duplicate_primary`가 정확히 1개다.
+- [ ] 모든 `duplicate_secondary`가 하나의 대표 사이트를 가리킨다.
+- [ ] 대표 선정 규칙과 대표 선정 이유가 기록되어 있다.
+- [ ] 중복 제외 항목에 점수와 P1~P5 우선순위를 부여하지 않았다.
+- [ ] `duplicate_candidate`는 HOLD로 유지했다.
+- [ ] `DUPLICATE_GROUPS.md`의 그룹 수와 메인 결과의 중복 수가 일치한다.
+
+### 19.7 수량 검수
+
+다음 수식이 성립해야 한다.
+
+```text
+입력 사이트 수 = 핵심 필요 + 부분 참고 + 불필요 + 중복 제외 + HOLD
+```
+
+다음 수식도 성립해야 한다.
+
+```text
+핵심 필요 = P1 + P2
+부분 참고 = P3 + P4
+불필요 = P5
+중복 제외 = DUPLICATE = duplicate_secondary
+판정 보류 = HOLD
+```
+
+---
+
+## 20. 검수 보고서 형식
+
+`classification/validation-report.txt`에 다음 형식으로 기록한다.
+
+```text
+PROJECT: YOVIA
+TASK: reference_classification_validation
+INPUT_COUNT:
+CLASSIFIED_COUNT:
+DUPLICATE_EXCLUDED_COUNT:
+HOLD_COUNT:
+DUPLICATE_GROUP_COUNT:
+DUPLICATE_PRIMARY_COUNT:
+DUPLICATE_SECONDARY_COUNT:
+DUPLICATE_CANDIDATE_COUNT:
+CORE_REQUIRED_COUNT:
+PARTIAL_REFERENCE_COUNT:
+UNNECESSARY_COUNT:
+FINAL_RECOMMENDATION_COUNT:
+SCORE_SUM_ERRORS:
+THRESHOLD_ERRORS:
+MISSING_EVIDENCE_ERRORS:
+DUPLICATE_ID_ERRORS:
+DUPLICATE_DOMAIN_ERRORS:
+DUPLICATE_GROUP_ERRORS:
+DUPLICATE_REPRESENTATIVE_ERRORS:
+COUNT_MISMATCH_ERRORS:
+VALIDATION_RESULT: pass / fail
+LAST_UPDATED:
+```
+
+오류가 있으면 항목별로 ID와 사유를 아래에 기록한다.
+
+```text
+[ERROR]
+ID:
+TYPE:
+DETAIL:
+REQUIRED_ACTION:
+```
+
+검수 실패 시 결과를 자동 수정하지 않는다. `VALIDATION_RESULT: fail`로 저장하고 사용자 검토를 기다린다.
+
+---
+
+## 21. 진행 파일 형식
+
+`classification/progress.txt` 초기 형식:
+
+```text
+PROJECT: YOVIA
+TASK: reference_classification
+RUN_STATE: waiting
+INPUT_COUNT: 0
+PROCESSED_COUNT: 0
+PASS_COUNT: 0
+PARTIAL_VALIDATION_COUNT: 0
+HOLD_COUNT: 0
+DUPLICATE_GROUP_COUNT: 0
+DUPLICATE_PRIMARY_COUNT: 0
+DUPLICATE_SECONDARY_COUNT: 0
+DUPLICATE_CANDIDATE_COUNT: 0
+CORE_REQUIRED_COUNT: 0
+PARTIAL_REFERENCE_COUNT: 0
+UNNECESSARY_COUNT: 0
+DUPLICATE_EXCLUDED_COUNT: 0
+PROCESSED_IDS: 없음
+LAST_PROCESSED_ID: 없음
+LAST_UPDATED: 없음
+```
+
+`RUN_STATE`는 다음 중 하나만 사용한다.
+
+```text
+waiting
+running
+paused
+stopped
+completed
+```
+
+---
+
+## 22. 최종 실행 지시
+
+이 문서를 읽은 에이전트는 다음 순서로 작업한다.
+
+1. 입력 명령이 `실행`, `일시정지`, `재개`, `중단`, `결과 검수` 중 무엇인지 판별한다.
+2. `결과 검수`이면 외부 웹에 접근하지 않고 기존 분류 결과만 검사한다.
+3. `실행` 또는 허용된 `재개`이면 `research/REFERENCE_RESEARCH.txt`와 `research/progress.txt`를 읽는다.
+4. 입력 사이트 수와 완료 상태를 검수한다.
+5. URL과 브랜드 정보를 정규화하고 사이트별 중복 상태를 판정한다.
+6. 중복 그룹마다 대표 사이트 1개를 선정하고 `classification/DUPLICATE_GROUPS.md`에 기록한다.
+7. 사이트별로 `validation_pass`, `validation_partial`, `validation_duplicate`, `validation_hold`를 판정한다.
+8. `duplicate_primary`, `unique`, `related_not_duplicate` 중 HOLD가 아닌 항목만 A~E 기준으로 점수화한다.
+9. `duplicate_secondary`는 `중복 제외 / DUPLICATE`, `duplicate_candidate`는 `미분류 / HOLD`로 처리한다.
+10. 총점과 최소 조건을 함께 적용해 대표·고유 사이트를 `핵심 필요`, `부분 참고`, `불필요`로 분류한다.
+11. 점수와 분류에 따라 P1~P5 우선순위를 부여한다.
+12. 모든 판단에 리서치 파일의 P번호 근거를 연결한다.
+13. 사이트별 고정 출력 양식으로 `classification/REFERENCE_CLASSIFICATION.md`에 저장한다.
+14. 전체 분류 완료 후 동점 처리 규칙에 따라 순위를 정한다.
+15. Pilot이면 최대 5개, Full이면 최대 15개의 최종 추천 사이트를 선정한다.
+16. 분류·중복·점수·추천 결과에 대해 검수 규칙을 모두 수행한다.
+17. 검수 결과를 `classification/validation-report.txt`에 저장한다.
+18. 검수 통과 시 `classification/progress.txt`에 `RUN_STATE: completed`를 기록한다.
+19. 검수 실패 시 결과를 임의 수정하지 않고 오류 보고서를 저장한 뒤 종료한다.

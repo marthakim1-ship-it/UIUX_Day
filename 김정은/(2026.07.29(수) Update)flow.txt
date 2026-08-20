@@ -1,0 +1,211 @@
+AI Subtitle Generator	영상 음성을 분석해서 자동 자막 생성
+AI Subtitle Generator	영상 음성을 분석해서 자동 자막 생성
+Brand Carousel Builder	인스타/홍보용 브랜드 캐러셀 슬라이드 제작
+Car Showdown		자동차 두 대를 비교 연출 이미지로 제작
+Character Persona Generator	한 캐릭터를 여러 각도·표정으로 일관성 있게 생성
+Emote Crafter Pro		캐릭터 이모트/표정 세트 제작
+GeoVisualizer		위치 기반 정보를 시각화하거나 드론/지도 느낌 연출
+GridCraft			여러 이미지를 그리드로 정렬해주는 가벼운 유틸
+Lumina Filter Studio		사진에 필터/색감 효과 적용
+LuzRelighting		이미지의 조명 방향/빛 느낌 재설정
+Manga Architect Pro		만화/코믹 페이지 구성
+Mars Blueprint Architect	SF 느낌의 화성 구조물/설계 비주얼 제작
+RETRO-TERM 80		복고풍 터미널/CRT 스타일 그래픽 제작
+Text Effect		샘플 스타일 기반 텍스트 효과 생성
+Vector Sticker Studio	이미지를 스티커 스타일로 변환
+Void Velocity		네온/아케이드풍 속도감 있는 비주얼 생성
+
+
+
+Character Persona Generator -> 	AI생성 영상만들때, 캐릭터 시트를 제작 기반 소스, 드로잉 러프 스케치
+AI Subtitle Generator -> 		자막 자동생성 초안(프리미어나 에펙에서 2차 작업)
+
+
+[FACE ANGLES]
+close-up portrait, front view			정면
+close-up portrait, 3/4 view facing left		3/4 좌측
+close-up portrait, 3/4 view facing right		3/4 우측
+close-up portrait, left side profile		좌측 옆모습
+close-up portrait, right side profile		우측 옆모습
+close-up portrait, looking slightly up		위를 살짝 보는 시선
+close-up portrait, looking slightly down		아래를 살짝 보는 시선
+close-up portrait, head tilted			머리를 기울인 상태
+
+
+
+
+[EXPRESSIONS]
+close-up, big open-mouth laugh		크게 웃는 표정
+close-up, surprised expression		놀란 표정
+close-up, singing expression			노래하는 표정
+close-up, thinking expression			생각하는 표정
+close-up, excited grin			신난 표정
+close-up, sleepy expression			졸린 표정
+
+
+
+
+[BODY SHOTS]
+full body, standing front view			정면 서기
+full body, standing back view			뒤돌아 서기
+full body, waving hello with right hand		오른손으로 인사하기
+full body, jumping mid-air			공중 점프
+full body, sitting cross-legged			다리 꼬고 앉기
+full body, walking pose			걷는 포즈
+full body, pointing forward with excited expression	앞을 가리키는 포즈
+full body, dancing pose			춤추는 포즈
+
+
+
+
+
+
+1) 얼굴 시트만 만들고 싶을 때
+-Create a consistent character face sheet.
+Keep the same hairstyle, face shape, skin tone, outfit details, and lighting across all shots.
+Neutral expression, clean background, clear facial structure, high consistency.
+-같은 캐릭터의 얼굴 시트를 만들어줘.
+모든 샷에서 헤어스타일, 얼굴형, 피부톤, 의상 디테일, 조명을 동일하게 유지해줘.
+표정은 과하지 않은 기본 상태로 유지하고, 배경은 깔끔하게 정리해줘.
+캐릭터 일관성이 가장 중요하다.
+[ ✔ ]close-up portrait, front view			정면
+[ ✔ ]close-up portrait, 3/4 view facing left		3/4 좌측
+[ ✔ ]close-up portrait, 3/4 view facing right		3/4 우측
+[ ✔ ]close-up portrait, left side profile			좌측 옆모습
+[ ✔ ]close-up portrait, right side profile			우측 옆모습
+[ ✔ ]close-up portrait, looking slightly up		위를 살짝 보는 시선
+[ ✔ ]close-up portrait, looking slightly down		아래를 살짝 보는 시선
+[ ✔ ]close-up portrait, head tilted			머리를 기울인 상태
+
+
+[  ]close-up, big open-mouth laugh
+[  ]close-up, surprised expression
+[  ]close-up, singing expression
+[  ]close-up, thinking expression
+[  ]close-up, excited grin
+[  ]close-up, sleepy expression
+
+
+[  ]full body, standing front view
+[  ]full body, standing back view
+[  ]full body, waving hello with right hand
+[  ]full body, jumping mid-air
+[  ]full body, sitting cross-legged
+[  ]full body, walking pose
+[  ]full body, pointing forward with excited expression
+[  ]full body, dancing pose
+
+
+
+
+2) 표정 시트만 만들고 싶을 때
+-Create a consistent expression sheet for the same character.
+Keep the same face shape, hairstyle, outfit, lighting, and framing.
+Only change the facial expression and emotion.
+Clean background, clear readability, expression clarity is important.
+-같은 캐릭터의 표정 시트를 만들어줘.
+얼굴형, 헤어스타일, 의상, 조명, 구도는 동일하게 유지하고,
+표정과 감정만 바뀌도록 해줘.
+배경은 단순하고, 표정 차이가 명확하게 보이게 해줘.
+[  ]up portrait, front view
+[  ]close-up portrait, 3/4 view facing left
+[  ]close-up portrait, 3/4 view facing right
+[  ]close-up portrait, left side profile
+[  ]close-up portrait, right side profile
+[  ]close-up portrait, looking slightly up
+[  ]close-up portrait, looking slightly down
+[  ]close-up portrait, head tilted
+
+
+[ ✔ ]close-up, big open-mouth laugh		크게 웃는 표정
+[ ✔ ]close-up, surprised expression		놀란 표정
+[ ✔ ]close-up, singing expression		노래하는 표정
+[ ✔ ]close-up, thinking expression		생각하는 표정
+[ ✔ ]close-up, excited grin			신난 표정
+[ ✔ ]close-up, sleepy expression		졸린 표정
+
+
+[  ]full body, standing front view
+[  ]full body, standing back view
+[  ]full body, waving hello with right hand
+[  ]full body, jumping mid-air
+[  ]full body, sitting cross-legged
+[  ]full body, walking pose
+[  ]full body, pointing forward with excited expression
+[  ]full body, dancing pose
+
+
+
+3) 전신 포즈 시트 만들고 싶을 때
+-Create a full-body pose sheet for the same character.
+Keep the same face, hairstyle, body proportions, outfit, and color palette.
+Show clear pose variation while maintaining consistency.
+Full body must be visible, with clean spacing and simple background.
+-같은 캐릭터의 전신 포즈 시트를 만들어줘.
+얼굴, 헤어스타일, 신체 비율, 의상, 색상은 동일하게 유지하고,
+포즈만 다양하게 바뀌도록 해줘.
+전신이 잘 보이게 하고, 배경은 단순하게 유지해줘.
+[  ]close-up portrait, front view
+[  ]close-up portrait, 3/4 view facing left
+[  ]close-up portrait, 3/4 view facing right
+[  ]close-up portrait, left side profile
+[  ]close-up portrait, right side profile
+[  ]close-up portrait, looking slightly up
+[  ]close-up portrait, looking slightly down
+[  ]close-up portrait, head tilted
+
+
+
+[  ]close-up, big open-mouth laugh
+[  ]close-up, surprised expression
+[  ]close-up, singing expression
+[  ]close-up, thinking expression
+[  ]close-up, excited grin
+[  ]close-up, sleepy expression
+
+
+
+[  ]full body, standing front view			정면 서기
+[  ]full body, standing back view			뒤돌아 서기
+[  ]full body, waving hello with right hand			오른손으로 인사하기
+[ ✔ ]full body, jumping mid-air			공중 점프
+[ ✔ ]full body, sitting cross-legged			다리 꼬고 앉기
+[  ]full body, walking pose				걷는 포즈
+[ ✔ ]full body, pointing forward with excited expression	앞을 가리키는 포즈
+[ ✔ ]full body, dancing pose				춤추는 포즈
+
+
+
+
+
+---------------------------------------------------------------------------------------------------
+
+
+[  ]close-up portrait, front view
+[  ]close-up portrait, 3/4 view facing left
+[  ]close-up portrait, 3/4 view facing right
+[  ]close-up portrait, left side profile
+[  ]close-up portrait, right side profile
+[  ]close-up portrait, looking slightly up
+[  ]close-up portrait, looking slightly down
+[  ]close-up portrait, head tilted
+
+
+
+[  ]close-up, big open-mouth laugh
+[  ]close-up, surprised expression
+[  ]close-up, singing expression
+[  ]close-up, thinking expression
+[  ]close-up, excited grin
+[  ]close-up, sleepy expression
+
+
+
+[  ]full body, standing front view
+[  ]full body, standing back view
+[  ]full body, waving hello with right hand
+[  ]full body, jumping mid-air
+[  ]full body, sitting cross-legged
+[  ]full body, walking pose
+[  ]full body, pointing forward with excited expression
+[  ]full body, dancing pose

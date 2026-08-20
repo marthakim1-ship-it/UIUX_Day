@@ -1,0 +1,89 @@
+[Node]
+Start-Process "https://nodejs.org/en/download"
+
+Test-Path "C:\Program Files\nodejs\node.exe"
+
+$env:Path += ";C:\Program Files\nodejs"
+
+node --version
+
+
+
+[Git]
+Start-Process "https://git-scm.com/download/win"
+
+git --version
+
+
+
+[npm]
+npm --version
+
+오류 발생시: Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+
+Y
+
+
+[codex 설치]
+npm install -g @openai/codex
+
+
+[codex 버전]
+codex --version
+
+
+[codex 업데이트]
+npm install -g @openai/codex@latest
+
+
+[codex 삭제]
+npm uninstall -g @openai/codex
+
+
+[설치 위치 확인]
+where.exe codex
+npm prefix -g
+
+
+
+[최초 로그인]
+Sign in with ChatGPT
+
+
+[codex 일반 실행]
+codex
+
+
+[전체 권한]
+codex --yolo
+
+
+[폴더 내 권한]
+codex --dangerously-bypass-approvals-and-sandbox
+
+
+[모델 정보] -> 모델 정보 확인
+/model to change
+
+
+[모델]
+/model
+
+
+[스킬 확인]
+Use /skills to list available skills
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

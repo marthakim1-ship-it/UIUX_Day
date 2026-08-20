@@ -1,0 +1,65 @@
+YOVIA 기획 자동화 CLI 파이프라인 (yovia_cli_pipeline)
+[GLOBAL_CONTEXT] (에이전트 전역 주입 환경 변수)
+1. 브랜드 기본 정보 (YOVIA)
+
+핵심 가치: 시간 빈곤 해결, 100% 락토프리, 생분해 파우치(PLA), 초개인화 정기 구독
+
+디자인 무드: Natural Daylight, Deep Forest Green, Organic Cream
+
+전략 방향: [C안] Lean Premium 하이브리드 (쇼피파이 + 구독 API 연동)
+
+2. 벤치마킹 타깃 (우선순위)
+
+[디자인]: Vacation, Graza, Brightland, Aesop
+
+[사용성]: Oats Overnight, NotCo AI, Huel, Soylent, GoGo squeeZ
+
+[하이브리드(최우선)]: Too Good & Co., :ratio, Chobani, YOZM 요즘, Daily Harvest
+
+[TASK_1] 4-2 웹사이트 필수 조건 문서 자동 생성
+Command: EXECUTE_PROMPT --output "4-2_yovia_website_requirements.md"
+Prompt:
+전역 변수 [GLOBAL_CONTEXT]를 바탕으로 YOVIA의 '4-2. 웹사이트 조건' 문서를 작성하라.
+다음 항목을 반드시 포함할 것:
+
+개발 환경: 쇼피파이(Shopify) 기반 구축 및 Steppay/ReCharge API를 통한 구독 모듈 연동.
+
+핵심 유저 플로우: 메인 페이지 진입 후 '원클릭 스타터 팩 구독' 및 '나만의 모닝 파우치 조립(DIY)'으로의 최단 거리 동선.
+
+UI/UX 원칙: 모바일 퍼스트(Mobile-First), WebP 변환 및 지연 로딩을 통한 30초 내 결제 퍼포먼스 확보.
+
+비주얼 정책: 인위적 그래픽 배제, 자연광 에디토리얼 무드 적용.
+
+[TASK_2] Information Architecture (IA) 정보 구조도 트리 생성
+Command: EXECUTE_PROMPT --output "yovia_ia_tree.md"
+Prompt:
+작성된 4-2 웹사이트 조건을 바탕으로 YOVIA D2C 몰의 전체 IA(Information Architecture)를 트리 구조로 시각화하여 작성하라.
+최대 Depth는 3단계(Main -> Category -> Detail/Checkout)를 넘지 않도록 극단적으로 단순화할 것.
+필수 포함 페이지:
+
+메인 (스크롤텔링 및 퀵 구매)
+
+DIY 모닝 파우치 조립 (베이스, 퓨레, 배송 주기 선택)
+
+브랜드 스토리 (생분해 패키지 및 락토프리 ESG)
+
+마이페이지 (구독 주기 변경, 1회 쉬어가기, 즉시 해지 기능)
+
+[TASK_3] 와이어프레임 텍스트 및 UI 컴포넌트 명세서 추출
+Command: EXECUTE_PROMPT --format json --output "yovia_wireframe_specs.json"
+Prompt:
+Task 2의 IA를 바탕으로 주요 페이지에 들어갈 텍스트 카피라이팅과 UI 컴포넌트 명세를 JSON 포맷으로 추출하라.
+각 페이지별로 다음 키(Key)를 포함할 것:
+
+page_name: 페이지명
+
+hero_copy: 메인 카피라이팅 (예: "바쁜 아침 한 팩 쓱, 하루 공복 부담 없이 쏙.")
+
+cta_button_text: 주요 행동 유도 버튼 텍스트 (예: "나만의 파우치 조립하기")
+
+ui_components: 필수 UI 모듈 리스트 (예: "Sticky 하단 결제 바", "가로 스와이프 퓨레 선택 위젯")
+
+[SYSTEM_DIRECTIVE]
+CLI 에이전트는 위 3가지 Task를 순차적으로 실행할 것.
+
+각 출력물에는 대화형 응답(예: "알겠습니다", "작성을 완료했습니다")을 일절 포함하지 않고 오직 결과물 코드/마크다운만 출력할 것.

@@ -1,0 +1,40 @@
+[Gemini 제거]
+*설치가 되어있는 경우에만 삭제
+npm uninstall -g @google/gemini-cli
+
+
+[Gemini 설치확인]
+Gemini --version
+
+[Antigravity CLI 설치]
+irm https://antigravity.google/cli/install.ps1 | iex
+
+
+--------------------------------------------------->
+★프로그램 인식을 위해 반드시 vscode나 Window Powershell 완전히 종료 후 다시 열기★
+
+
+[Antigravity CLI 설치 확인]
+Test-Path "$env:LOCALAPPDATA\agy\bin\agy.exe"
+
+
+
+[Antigravity CLI 버전 확인]
+agy --version
+
+
+
+[Antigravity CLI 실행]
+agy
+
+
+[로그인 선택]
+Google OAuth
+
+
+[테마 선택]
+vscode 기본 테마
+
+
+[폴더 신뢰]
+Yes, I trust this folder

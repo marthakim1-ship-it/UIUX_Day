@@ -1,0 +1,11 @@
+<li class="user-item user-item03">
+                    <a href="#" target="_blank" title="전체 메뉴 열기">menu
+                        <svg class="menu-svg" viewBox="0 0 4 18" aria-hidden="true">
+                            <circle cx="2" cy="2" r="1.5"></circle>
+                            <circle cx="2" cy="9" r="1.5"></circle>
+                            <circle cx="2" cy="16" r="1.5"></circle>
+                        </svg>
+                    </a>
+                </li>
+
+menu 아이콘 SVG 구현, 정답코드에서 svg 코드랑 class, viewBox, aria-hidden 에 대해서 아직 잘 모르겠습니다. 

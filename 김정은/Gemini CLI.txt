@@ -1,0 +1,98 @@
+tinyurl.com/2933k8dj
+
+[winget 버전 확인]
+winget --version
+
+
+[Node]
+Start-Process "https://nodejs.org/en/download"
+
+Test-Path "C:\Program Files\nodejs\node.exe"
+
+$env:Path += ";C:\Program Files\nodejs"
+
+node --version
+
+
+[vscode 삭제]
+(node 강제 종료)
+Get-Process node -ErrorAction SilentlyContinue | Stop-Process -Force
+
+
+(node 모듈 삭제)
+Remove-Item -LiteralPath ".\node_modules" -Recurse -Force
+
+
+(node 강제 삭제)
+cmd /c rmdir /s /q node_modules
+
+
+(패키지 잠금 파일 삭제)
+cmd /c rmdir /s /q node_modules
+
+
+
+
+[Window 삭제]
+[설정]
+Get-Process node -ErrorAction SilentlyContinue | Stop-Process -Force
+
+
+[남은 설치 폴더 삭제]
+Remove-Item "C:\Program Files\nodejs" -Recurse -Force -ErrorAction SilentlyContinue
+
+
+[npc 캐시 삭제]
+Remove-Item "$env:LOCALAPPDATA\npm-cache" -Recurse -Force -ErrorAction SilentlyContinue
+Remove-Item "$env:APPDATA\npm-cache" -Recurse -Force -ErrorAction SilentlyContinue
+
+
+
+
+[Git]
+Start-Process "https://git-scm.com/download/win"
+
+git --version
+
+
+
+[npm]
+npm --version
+
+오류 발생시: Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+
+Y
+
+
+[Gemini 설치]
+npm install -g @google/gemini-cli
+
+
+[설치 및 버전 확인]
+gemini --version
+
+
+[일반 실행]
+gemini
+
+
+[모든 권한 실행]
+gemini --approval-mode=yolo
+
+
+[폴더 내부 권한 실행]
+gemini --sandbox --approval-mode=auto_edit
+
+
+[폴더 생성]
+mkdir C:\Users\SBS\원하는 이름
+
+
+[폴더 이동]
+cd C:\Users\SBS\원하는 이름
+cd C:\Users\SBS\kje
+
+
+[로그아웃]
+*공용 컴퓨터
+/Logout
